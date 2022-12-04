@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/template}">
+<head>
+    <meta charset="utf-8"/>
+    <link th:href="@{/templateAdmin/css/multiple-image-preview.css}" rel="stylesheet"/>
+    <title>Add new product</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://cdn.tiny.cloud/1/2mxsxulxmdqvlr9jnx0cii9sz96jwsyqbahtu3gars8e7kp6/tinymce/5/tinymce.min.js"
+            referrerpolicy="origin"></script>
+    <script th:src="@{/jscolor.js}"></script>
+    <script>
+      tinymce.init({
+        selector: '#mytextarea'
+      });
+    </script>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <form th:action="@{/products/add}" th:object="${product}" enctype="multipart/form-data" method="POST"
+                      id="form-add">
+                    <div class="text-center bold text-center mb-4">
+                        <h3>Add new product</h3>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="name" class="col-sm-2 col-form-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" th:field="*{name}" class="form-control" id="name">
+                            <!--                            <span class="text-danger" th:errors="*{name}"></span>-->
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="price" class="col-sm-2 col-form-label">Price</label>
+                        <div class="col-sm-10">
+                            <input type="number" min="0" th:field="*{price}" class="form-control" id="price">
+                            <!--                            <span class="text-danger" th:errors="*{price}"></span>-->
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="totalBalanceQTY" class="col-sm-2 col-form-label">Balance QTY</label>
+                        <div class="col-sm-10">
+                            <input type="number" min="0" th:field="*{totalBalanceQTY}" class="form-control"
+                                   id="totalBalanceQTY">
+                            <!--                            <span class="text-danger" th:errors="*{totalBalanceQTY}"></span>-->
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="mytextarea" class="col-sm-2 col-form-label">Description</label>
+                        <div class="col-sm-10">
+                            <textarea rows="" cols="" th:field="*{description}" id="mytextarea"></textarea>
+                            <!--                            <span class="text-danger" th:errors="*{description}"></span>-->
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="category" class="col-sm-2 col-form-label">Category</label>
+                        <div class="col-sm-10">
+                            <select class="form-select" th:field="*{category.id}" id="category">
+                                <option th:each="category : ${categories}" th:value="${category.id}"
+                                        th:text="${category.name}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="brand" class="col-sm-2 col-form-label">Brand</label>
+                        <div class="col-sm-10">
+                            <select class="form-select" th:field="*{brand.id}" id="brand">
+                                <option th:each="brand : ${brands}" th:value="${brand.id}"
+                                        th:text="${brand.name}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <!--                    <div class="mb-3 row">-->
+                    <!--                        <label for="brand" class="col-sm-2 col-form-label">Màu sắc</label>-->
+                    <!--                        <div class="col-sm-10">-->
+                    <!--                            <input class="form-control" value="#333" data-jscolor="{}">-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
+                    <div class="row mb-4">
+                        <label class="col-sm-2 col-form-label">Image</label>
+                        <div class="card col-sm-10" style="border: none">
+                            <div class="card-header d-flex justify-content-between">
+                                <h4>Image Uploading</h4>
+                                <input type="file" id="file-input" name="multipartFiles"
+                                       accept="image/png, image/jpeg" multiple class="d-none">
+                                <button class="btn btn-sm btn-primary" type="button"
+                                        onclick="document.getElementById('file-input').click()">Choose
+                                    Images
+                                </button>
+                            </div>
+                            <div id="images" class="card-body col-12 d-flex justify-content-start"></div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <input class="btn btn-primary" id="btn-submit" type="submit" value="Add new">
+                    </div>
+                </form>
+            </div>
+            <script>
+            const fileInput = document.getElementById('file-input');
+            const imageContainer = document.getElementById('images');
+            const btnSubmit = document.getElementById('btn-submit');
+
+            const files = [];
+            fileInput.onchange = () => {
+                for (file of fileInput.files) {
+                    files.length > 3 && files.shift();
+                    files.push(file);
+                }
+                preview();
+            };
+
+            function displayImageIn1Label(imagesLength) {
+                const minLength = 4;
+                let updatedLength = 0;
+                if (imagesLength > minLength) {
+                updatedLength = imagesLength - minLength;
+                }
+                if (updatedLength !== 0) {
+                    for (let i = 0; i < updatedLength; i++) {
+                        imageContainer.removeChild(imageContainer.getElementsByClassName('image_container')[i]);
+                    }
+                }
+            }
+
+            function preview() {
+                imageContainer.innerHTML = '';
+                for (file of files) {
+                    const reader = new FileReader();
+                    const figure = document.createElement('div');
+                    figure.className = 'image_container d-flex justify-content-center position-relative';
+                    reader.onload = () => {
+                        const img = document.createElement('img');
+                        img.setAttribute('src', reader.result);
+                        const deleteIcon = document.createElement('span');
+                        deleteIcon.textContent = 'x';
+                        deleteIcon.className = 'position-absolute temp-delete-ic';
+                        deleteIcon.onclick = () => {
+                            const image = deleteIcon.previousSibling;
+                            files.forEach(file => {
+                                const readerCheck = new FileReader();
+                                readerCheck.readAsDataURL(file);
+                                readerCheck.onload = () => {
+                                    if(readerCheck.result === image.getAttribute('src')) {
+                                        files.splice(files.indexOf(file), 1);
+                                    }
+                                }
+                            })
+                            deleteIcon.parentNode.remove();
+                        };
+                        figure.appendChild(img);
+                        figure.appendChild(deleteIcon);
+                    };
+                    imageContainer.appendChild(figure);
+                    reader.readAsDataURL(file);
+                }
+                displayImageIn1Label(imageContainer.childNodes.length);
+            }
+
+            btnSubmit.onclick = () => {
+                const fileList = new DataTransfer();
+                files.forEach((file) => fileList.items.add(file));
+                fileInput.files = fileList.files;
+            };
+
+
+            </script>
+        </div>
+    </div>
+    <div th:replace="common/footer :: footer"></div>
+</section>
+</body>
+<script>
+    tinymce.init({
+      selector: 'textarea',
+      plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+      toolbar_mode: 'floating',
+      entity_encoding : "raw",
+      encoding: "UTF-8",
+   });
+
+
+
+
+</script>
+</html>

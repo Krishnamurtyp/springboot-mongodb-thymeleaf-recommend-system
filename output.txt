@@ -1,0 +1,17 @@
+4 #SUP: 2
+4 1 #SUP: 2
+5 #SUP: 4
+5 3 #SUP: 3
+5 3 2 #SUP: 3
+5 3 2 1 #SUP: 2
+5 3 1 #SUP: 2
+5 2 #SUP: 4
+5 2 1 #SUP: 2
+5 1 #SUP: 2
+3 #SUP: 4
+3 2 #SUP: 3
+3 2 1 #SUP: 2
+3 1 #SUP: 3
+2 #SUP: 4
+2 1 #SUP: 2
+1 #SUP: 4

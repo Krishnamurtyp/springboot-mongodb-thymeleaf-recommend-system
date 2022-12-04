@@ -1,0 +1,57 @@
+.image_container {
+	height: 240px;
+	width: 200px;
+	border-radius: 6px;
+	overflow: hidden;
+	margin: 10px;
+}
+
+.image_container img {
+	height: 100%;
+	width: 100%;
+	object-fit: cover;
+}
+
+.image_container span {
+	top: -6px;
+	right: 8px;
+	color: red;
+	font-size: 28px;
+	font-weight: normal;
+	cursor: pointer;
+/* <<<<<<< HEAD */
+}
+/* =======
+}
+>>>>>>> 077bd355df12fa91e1f00464001cf197e7215f0d */
+.container p{
+    text-align: center;
+    margin: 20px 0 30px 0;
+}
+/* #images{
+    height: 240px;
+	width: 200px;
+	border-radius: 6px;
+	overflow: hidden;
+	margin: 10px;
+	display: flex;
+} */
+figure{
+    height: 100%;
+	width: 100%;
+	object-fit: cover;
+}
+figure img {
+	height: 100%;
+	width: 100%;
+	object-fit: cover;
+}
+figcaption{
+    top: -6px;
+	right: 8px;
+	color: red;
+	font-size: 28px;
+	font-weight: normal;
+	cursor: pointer;
+}
+

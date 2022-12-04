@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/template}">
+<head>
+    <meta charset="utf-8"/>
+    <title>List of products</title>
+    <link th:href="@{/templateAdmin/css/multiple-image-preview.css}" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/pagination.css}">
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="container-fluid">
+        <h3 class="text-center">List of products</h3>
+        <hr/>
+        <form>
+            <div class="row">
+                <div class="col-12 search-field">
+                    <div class="form-group row">
+                        <div class="col-sm-2"></div>
+                        <label class="col-sm-1 col-form-label">Search:</label>
+                        <div class="col-sm-5">
+                            <input class="form-control" type="text" name="search"
+                                   th:value="${search}" placeholder="keyword...">
+                        </div>
+                        <div class="text-center col-sm-2">
+                            <button class="btn btn-primary" type="submit">Search</button>
+                            <a class="btn btn-primary" th:href="@{/products}">Refresh</a>
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <table class="custom_table text-center" style="width: 100%">
+                        <tr>
+<!--                            <th>Mã Sản Phẩm</th>-->
+                            <th>Name</th>
+                            <th>Image</th>
+                            <th>Price</th>
+                            <th>Balance QTY</th>
+                            <th>Sold QTY</th>
+                            <th>Category</th>
+                            <th>Brand</th>
+                            <th>Select</th>
+                        </tr>
+
+                        <tr th:each="product : ${products}">
+<!--                            <td th:text="${product.id}"></td>-->
+                            <td th:text="${product.name}"></td>
+                            <td>
+                                <div class="image_container d-flex justify-content-center position-relative"
+                                     style="height: 120px; width: 100px; margin: auto">
+                                    <img th:if="${product.images} != null"
+                                         th:src="@{'/products/download/'+${product.id}+'?index=0'}">
+
+                                </div>
+                            </td>
+                            <td th:text="${product.price}"></td>
+                            <td th:text="${product.totalBalanceQTY}"></td>
+                            <td th:text="${product.totalSoldQTY}"></td>
+                            <td>
+                                <span th:if="${product.category} != null">[[${product.category.name}]]</span>
+                                <span th:unless="${product.category} != null"></span>
+                            </td>
+                            <td>
+                                <span th:if="${product.brand} != null">[[${product.brand.name}]]</span>
+                                <span th:unless="${product.brand} != null"></span>
+                            </td>
+                            <td colspan="2">
+                                <a th:href="@{'/products/update?id='+${product.id}}">
+                                    <i class="far fa-edit edit-icon"></i>
+                                </a>
+                                <a href="#" data-bs-toggle="modal"
+                                   th:data-bs-target="@{'#my-modal'+${product.id}}">
+                                    <i class="fas fa-trash-alt delete-icon"></i>
+                                </a>
+                            </td>
+                            <div th:id="@{'my-modal'+${product.id}}" class="modal" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Delete product</h5>
+                                            <button type="button" class="btn-close"
+                                                    data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete product
+                                                [[${product.name}]] ?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancel
+                                            </button>
+                                            <a class="btn btn-primary"
+                                               th:href="@{'/products/delete/'+${product.id}}">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="row mt-4 mb-4">
+                <span class="col-6" style="display: block; text-align: center;">
+                    Showing products [[${start}]] to [[${end}]] of [[${totalData}]]
+                </span>
+                <div class="pagination col-6">
+                    <th:block th:if="${totalPage <= 8}">
+                        <a th:href="@{'/products?page='+${i-1}+'&limit='+${limit}+'&search='+${search}}"
+                           th:each="i: ${#numbers.sequence(1, totalPage)}"
+                           th:class="${currentPage == i ? 'active' : ''}">
+                            [[${i}]]
+                        </a>
+                    </th:block>
+                    <th:block th:if="${totalPage > 8}">
+                        <a th:href="@{'/products?page=0&limit='+${limit}+'&search='+${search}}"
+                           th:class="${currentPage == 1 ? 'disbale' : ''}">
+                            &laquo;
+                        </a>
+                        <th:block th:if="${currentPage <= 4 || currentPage > totalPage - 3}">
+                            <a th:href="@{'/products?page='+${i-1}+'&limit='+${limit}+'&search='+${search}}"
+                               th:each="i: ${#numbers.sequence(1, 5)}"
+                               th:class="${currentPage == i ? 'active' : ''}">
+                                [[${i}]]
+                            </a>
+                            <a th:href="@{'/products?page=4&limit='+${limit}+'&search='+${search}}">
+                                ...
+                            </a>
+                            <a th:href="@{'/products?page='+${i-1}+'&limit='+${limit}+'&search='+${search}}"
+                               th:each="i: ${#numbers.sequence(totalPage - 3, totalPage)}"
+                               th:class="${currentPage == i ? 'active' : ''}">
+                                [[${i}]]
+                            </a>
+                        </th:block>
+                        <a th:href="@{'/products?page='+${totalPage - 1}+'&limit='+${limit}+'&search='+${search}}"
+                           th:class="${currentPage == totalPage ? 'disbale' : ''}">
+                            &raquo;
+                        </a>
+                    </th:block>
+                    <th:block th:if="${currentPage > 4 && currentPage < totalPage - 3}">
+                        <a th:href="@{'/products?page='+${currentPage - 5}+'&limit='+${limit}+'&search='+${search}}">
+                            ...
+                        </a>
+                        <a th:href="@{'/products?page='+${i-1}+'&limit='+${limit}+'&search='+${search}}"
+                           th:each="i: ${#numbers.sequence(currentPage - 3, currentPage + 3)}"
+                           th:class="${currentPage == i ? 'active' : ''}">
+                            [[${i}]]
+                        </a>
+                        <a th:href="@{'/products?page='+${currentPage + 3}+'&limit='+${limit}+'&search='+${search}}">
+                            ...
+                        </a>
+                    </th:block>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div th:replace="common/footer :: footer"></div>
+</section>
+</body>
+</html>
